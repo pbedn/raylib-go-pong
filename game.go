@@ -158,9 +158,9 @@ func main() {
 			fontSize := float32(40.0)  // Normal size
 			spacing := float32(2.0)
 			rl.DrawTextPro(defaultFont, "PONG!", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("PONG!", int32(fontSize)))/2, Y: float32(rl.GetScreenHeight())/2 - 80}, origin, rotation, fontSize, spacing, rl.RayWhite)
-			rl.DrawTextPro(defaultFont, "Play with AI (press Enter)", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("Play with AI (press 1)", 20))/2, Y: float32(rl.GetScreenHeight()) / 2}, origin, rotation, 20, spacing, rl.RayWhite)
-			rl.DrawTextPro(defaultFont, "Local Two Player (press Space)", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("Play with AI (press 1)", 20)/2), Y: float32(rl.GetScreenHeight())/2 + 40}, origin, rotation, 20, spacing, rl.RayWhite)
-			rl.DrawTextPro(defaultFont, "Exit (Press Escape)", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("Play with AI (press 1)", 20)/2), Y: float32(rl.GetScreenHeight())/2 + 80}, origin, rotation, 20, spacing, rl.RayWhite)
+			rl.DrawTextPro(defaultFont, "Play with AI (press Enter)", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("Play with AI (press Enter)", 20))/2, Y: float32(rl.GetScreenHeight()) / 2}, origin, rotation, 20, spacing, rl.RayWhite)
+			rl.DrawTextPro(defaultFont, "Local Two Player (press Space)", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("Local Two Player (press Space)", 20))/2, Y: float32(rl.GetScreenHeight())/2 + 40}, origin, rotation, 20, spacing, rl.RayWhite)
+			rl.DrawTextPro(defaultFont, "Exit (Press Escape)", rl.Vector2{X: float32(rl.GetScreenWidth())/2 - float32(rl.MeasureText("Exit (Press Escape)", 20))/2, Y: float32(rl.GetScreenHeight())/2 + 80}, origin, rotation, 20, spacing, rl.RayWhite)
 		case PREGAME:
 			rl.DrawRectangleRec(leftPaddle.rect, rl.LightGray)
 			rl.DrawRectangleRec(rightPaddle.rect, rl.LightGray)
@@ -216,8 +216,6 @@ func GameLogic(leftPaddle *Paddle, rightPaddle *Paddle, ball *Ball, state *GameS
 				} else {
 					leftPaddle.rect.Y -= (leftPaddle.speed) * rl.GetFrameTime() // Move up slowly
 				}
-			} else {
-				leftPaddle = leftPaddle
 			}
 		} else {
 
@@ -239,7 +237,7 @@ func GameLogic(leftPaddle *Paddle, rightPaddle *Paddle, ball *Ball, state *GameS
 			// Clamp the paddle's position to stay within the game boundaries
 			if leftPaddle.rect.Y < 0 {
 				leftPaddle.rect.Y = 0
-			} else if leftPaddle.rect.Y > screenW-leftPaddle.rect.Height {
+			} else if leftPaddle.rect.Y > screenH-leftPaddle.rect.Height {
 				leftPaddle.rect.Y = screenH - leftPaddle.rect.Height
 			}
 		}
@@ -297,7 +295,7 @@ func GameLogic(leftPaddle *Paddle, rightPaddle *Paddle, ball *Ball, state *GameS
 		ResetBall(ball)
 	}
 
-	if state.leftScore == winScore || state.rightScore == winScore {
+	if state.leftScore >= winScore || state.rightScore >= winScore {
 		state.currentScene = GAME_OVER
 	}
 
