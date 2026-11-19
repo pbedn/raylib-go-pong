@@ -52,9 +52,11 @@ type GameState struct {
 	sounds Sounds
 	aiPlayer bool
 	currentScene gameScreen
+	prevScene gameScreen
 }
 
 func main() {
+	SearchAndSetResourceDir("resources")
 	rl.SetTraceLogLevel(rl.LogAll)
 	rl.SetConfigFlags(rl.FlagVsyncHint | rl.FlagMsaa4xHint)
 	rl.InitWindow(screenW, screenH, "Pong Game")
@@ -74,10 +76,9 @@ func main() {
 		currentScene: MAIN_MENU,
 	}
 
-	// rl.SetExitKey(rl.KeyNull) // Disable KEY_ESCAPE to close window, X-button still works
+	rl.SetExitKey(rl.KeyNull) // Disable KEY_ESCAPE to close window, X-button still works
 
-	exitWindowRequested := false // Flag to request window to exit
-	exitWindow := false          // Flag to set window to exit
+	exitWindow := false // Flag to set window to exit
 
 	leftPaddle := Paddle{
 		rl.Rectangle{
@@ -91,17 +92,19 @@ func main() {
     	rl.Vector2{X: (screenW / 2),Y: ( screenH / 2)},
     	rl.Vector2{X: 1.0, Y: 1.0}, ballSpeed,
     }
+	ResetBall(&ball)
 
 	for !exitWindow {
-		if rl.WindowShouldClose() || rl.IsMouseButtonPressed(rl.KeyEscape) {
-			exitWindowRequested = true
+		if rl.WindowShouldClose() || rl.IsKeyPressed(rl.KeyEscape) {
+			state.prevScene = state.currentScene
+			state.currentScene = EXIT_WINDOW
 		}
 
-		if exitWindowRequested {
+		if state.currentScene == EXIT_WINDOW {
 			if rl.IsKeyPressed(rl.KeyY) {
 				exitWindow = true
 			} else if rl.IsKeyPressed(rl.KeyN) {
-				exitWindowRequested = false
+				state.currentScene = state.prevScene
 			}
 		}
 
@@ -112,9 +115,12 @@ func main() {
 				state.aiPlayer = true
 			} else if rl.IsKeyPressed(rl.KeySpace) {
 				state.currentScene = GAME
+				state.aiPlayer = false
 			}
 		case PREGAME:
-			if rl.IsKeyPressed(rl.KeyEnter) {
+			if rl.IsKeyPressed(rl.KeySpace) || rl.IsKeyPressed(rl.KeyEnter) ||
+				rl.IsKeyPressed(rl.KeyW) || rl.IsKeyPressed(rl.KeyUp) ||
+				rl.IsKeyPressed(rl.KeyS) || rl.IsKeyPressed(rl.KeyDown) {
 				state.currentScene = GAME
 			}
 		case GAME:
@@ -182,13 +188,6 @@ func main() {
 			rl.DrawText(fmt.Sprintf("%d", state.leftScore), screenW / 4, 20, 80, rl.LightGray)
 			rl.DrawText(fmt.Sprintf("%d", state.rightScore), 3 * screenW / 4, 20, 80, rl.LightGray)
 			rl.DrawText(fmt.Sprintf("Press R to restart game."), (screenW / 2) - (screenW / 4), screenH / 2, 60, rl.RayWhite)
-		}
-
-		if exitWindowRequested {
-			rl.DrawRectangle(0, 100, screenW, 200, rl.Black)
-			rl.DrawText("Are you sure you want to exit the program? [Y/N]", 40, 180, 30, rl.White)
-		} else {
-			rl.DrawText("Try to close the window to get confirmation message!", 120, 200, 20, rl.LightGray)
 		}
 
 		rl.EndDrawing()
@@ -316,8 +315,8 @@ func ResetBall(ball *Ball) {
     	ball.direction.Y = 1.0
     } else {
     	ball.direction.Y = -1.0 
-    ball.speed = ballSpeed
 	}
+    ball.speed = ballSpeed
 }
 
 func DrawDashedLine(color rl.Color) {
